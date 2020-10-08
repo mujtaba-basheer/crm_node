@@ -22,6 +22,23 @@ const getTableData = (req, res, db) => {
         });
 };
 
+const getData = (req, res, db) => {
+    const { _id } = req.params;
+
+    db.collection("table")
+        .findOne({ _id: ObjectId(_id) })
+        .then((data) => {
+            console.log(data);
+            res.status(200).json(data);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({
+                dataExists: "false",
+            });
+        });
+};
+
 const postTableData = (req, res, db) => {
     const {
         cust_name,
@@ -134,4 +151,5 @@ module.exports = {
     postTableData,
     putTableData,
     deleteTableData,
+    getData,
 };

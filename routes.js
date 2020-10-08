@@ -19,6 +19,10 @@ client.connect(function (err, db) {
         router.route("/").get((req, res) => res.send("CRM API"));
 
         router
+            .route("/crud/:_id")
+            .get((req, res) => main.getData(req, res, db_instance));
+
+        router
             .route("/crud")
             .get((req, res) => main.getTableData(req, res, db_instance))
             .put((req, res) => main.putTableData(req, res, db_instance))
