@@ -146,6 +146,10 @@ const deleteTableData = (req, res, db) => {
         .catch((err) => res.status(400).json({ dbError: "db error" }));
 };
 
+const sendMail = (req, res, db) => {
+    const { cust_email } = req.body;
+};
+
 module.exports = {
     getTableData,
     postTableData,
