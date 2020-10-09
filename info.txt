@@ -1,0 +1,5 @@
+Please run the following commands
+
+nodemon start
+mongo
+redis-server
