@@ -1,4 +1,5 @@
 const ObjectId = require("mongodb").ObjectID;
+const sendMail = require("./../helper/mail");
 
 const getTableData = (req, res, db) => {
     db.collection("table")
@@ -40,6 +41,7 @@ const getData = (req, res, db) => {
 };
 
 const postTableData = (req, res, db) => {
+    console.log("log");
     const {
         cust_name,
         cust_email,
@@ -50,6 +52,7 @@ const postTableData = (req, res, db) => {
     } = req.body;
 
     const timestamp = new Date().toISOString();
+    const cust_comm = [];
 
     db.collection("table")
         .insertOne({
@@ -60,9 +63,9 @@ const postTableData = (req, res, db) => {
             cust_gst,
             rem_freq,
             timestamp,
+            cust_comm,
         })
         .then((data) => {
-            console.log(data);
             const { _id } = data.ops[0];
             db.collection("table")
                 .updateOne(
@@ -72,13 +75,36 @@ const postTableData = (req, res, db) => {
                     }
                 )
                 .then((item) => {
-                    console.log(item);
                     res.status(200).json(data.ops[0]);
                 })
                 .catch((err) => {
                     console.error(err);
                     res.status(400).json({ dbError: "db error" });
                 });
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(400).json({ dbError: "db error" });
+        });
+};
+
+const addComm = (req, res, db) => {
+    const { timestamp, details, cust_id } = req.body;
+
+    db.collection("table")
+        .updateOne(
+            { _id: ObjectId(cust_id) },
+            {
+                $push: {
+                    cust_comm: {
+                        $each: [{ timestamp, details }],
+                        $position: 0,
+                    },
+                },
+            }
+        )
+        .then((data) => {
+            res.status(200).json({ dbUpdate: "true" });
         })
         .catch((err) => {
             console.error(err);
@@ -146,8 +172,16 @@ const deleteTableData = (req, res, db) => {
         .catch((err) => res.status(400).json({ dbError: "db error" }));
 };
 
-const sendMail = (req, res, db) => {
-    const { cust_email } = req.body;
+const mailer = (req, res, db) => {
+    const { cust_email, subject, body } = req.body;
+    sendMail(
+        {
+            email: cust_email,
+            subject,
+            body,
+        },
+        res
+    );
 };
 
 module.exports = {
@@ -156,4 +190,6 @@ module.exports = {
     putTableData,
     deleteTableData,
     getData,
+    addComm,
+    mailer,
 };

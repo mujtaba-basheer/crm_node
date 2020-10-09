@@ -23,6 +23,14 @@ client.connect(function (err, db) {
             .get((req, res) => main.getData(req, res, db_instance));
 
         router
+            .route("/comm")
+            .post((req, res) => main.addComm(req, res, db_instance));
+
+        router
+            .route("/mail")
+            .post((req, res) => main.mailer(req, res, db_instance));
+
+        router
             .route("/crud")
             .get((req, res) => main.getTableData(req, res, db_instance))
             .put((req, res) => main.putTableData(req, res, db_instance))
