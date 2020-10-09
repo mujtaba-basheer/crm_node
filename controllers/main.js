@@ -1,5 +1,6 @@
 const ObjectId = require("mongodb").ObjectID;
 const sendMail = require("./../helper/mail");
+const scheduleJob = require("./../helper/scheduler");
 
 const getTableData = (req, res, db) => {
     db.collection("table")
@@ -184,6 +185,11 @@ const mailer = (req, res, db) => {
     );
 };
 
+const scheduleMail = (req, res, db) => {
+    const { cust_email, subject, body, delay } = req.body;
+    scheduleJob({ email: cust_email, subject, body }, delay, res);
+};
+
 module.exports = {
     getTableData,
     postTableData,
@@ -192,4 +198,5 @@ module.exports = {
     getData,
     addComm,
     mailer,
+    scheduleMail,
 };

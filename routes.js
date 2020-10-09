@@ -31,6 +31,10 @@ client.connect(function (err, db) {
             .post((req, res) => main.mailer(req, res, db_instance));
 
         router
+            .route("/schedule")
+            .post((req, res) => main.scheduleMail(req, res, db_instance));
+
+        router
             .route("/crud")
             .get((req, res) => main.getTableData(req, res, db_instance))
             .put((req, res) => main.putTableData(req, res, db_instance))
