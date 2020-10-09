@@ -8,39 +8,26 @@ const logger = createLogger({
 });
 
 const sendMail = async ({ email, subject, body }, res) => {
-    let testAccount = await nodemailer.createTestAccount();
+    // let testAccount = await nodemailer.createTestAccount();
 
     const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
+        service: "gmail",
         auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-            // user: process.env.EMAIL_ID,
-            // pass: process.env.EMAIL_PASS,
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD,
         },
     });
 
     try {
-        const info = await transporter.sendMail({
-            from: '"DesireCoupons" <mujtababasheer14@gmail.com>', // sender address
+        await transporter.sendMail({
+            from: "desirecoupons2020@gmail.com", // sender address
             to: email, // list of receivers
             subject: subject, // Subject line
             text: body, // plain text body
         });
 
-        logger.log({
-            level: "info",
-            message: "Message sent: %s" + info.messageId,
-        });
-        logger.log({
-            level: "info",
-            message: "Preview URL: %s" + nodemailer.getTestMessageUrl(info),
-        });
-
         res.status(200).json({
-            previewUrl: nodemailer.getTestMessageUrl(info),
+            mailSent: "true",
         });
     } catch (error) {
         logger.log({
