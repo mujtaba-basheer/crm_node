@@ -1,5 +1,12 @@
 const nodemailer = require("nodemailer");
 
+const { createLogger, format, transports } = require("winston");
+const { combine, prettyPrint, timestamp } = format;
+const logger = createLogger({
+    format: combine(timestamp(), prettyPrint()),
+    transports: [new transports.Console()],
+});
+
 const sendMail = async ({ email, subject, body }, res) => {
     let testAccount = await nodemailer.createTestAccount();
 
@@ -23,15 +30,23 @@ const sendMail = async ({ email, subject, body }, res) => {
             text: body, // plain text body
         });
 
-        console.log("Message sent: %s", info.messageId);
-
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        logger.log({
+            level: "info",
+            message: "Message sent: %s" + info.messageId,
+        });
+        logger.log({
+            level: "info",
+            message: "Preview URL: %s" + nodemailer.getTestMessageUrl(info),
+        });
 
         res.status(200).json({
             previewUrl: nodemailer.getTestMessageUrl(info),
         });
     } catch (error) {
-        console.error(error);
+        logger.log({
+            level: "error",
+            message: error,
+        });
         res.status(400).json({ mailSent: "false" });
     }
 };

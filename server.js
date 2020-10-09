@@ -2,6 +2,9 @@ const express = require("express");
 const MongoClient = require("mongodb").MongoClient;
 const routes = require("./routes");
 
+const { createLogger, format, transports } = require("winston");
+const { combine, prettyPrint, timestamp } = format;
+
 // use process.env variables to keep private variables,
 // be sure to ignore the .env file in github
 require("dotenv").config();
@@ -12,25 +15,9 @@ const bodyParser = require("body-parser"); // turns response into usable format
 const cors = require("cors"); // allows/disallows cross-site communication
 const morgan = require("morgan"); // logs requests
 
-// db Connection w/ Heroku
-// const db = require('knex')({
-//   client: 'pg',
-//   connection: {
-//     connectionString: process.env.DATABASE_URL,
-//     ssl: true,
-//   }
-// });
-
-// db Connection w/ localhost
-var db = require("knex")({
-    client: "pg",
-    connection: {
-        host: "localhost",
-        user: "swetabhmukherjee",
-        password: "password",
-        database: "crm",
-        port: 5432,
-    },
+const logger = createLogger({
+    format: combine(timestamp(), prettyPrint()),
+    transports: [new transports.Console()],
 });
 
 // App
@@ -51,7 +38,7 @@ const corsOptions = {
 app.use(helmet());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
-app.use(morgan("combined")); // use 'tiny' or 'combined'
+app.use(morgan("combined"));
 
 // App Routing is being handled by Express Router
 
@@ -59,5 +46,5 @@ app.use("/", routes);
 
 // App Server Connection
 app.listen(process.env.PORT || 3000, () => {
-    console.log(`app is running on port ${process.env.PORT || 3000}`);
+    logger.info(`app is running on port ${process.env.PORT || 3000}`);
 });

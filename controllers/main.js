@@ -1,13 +1,18 @@
 const ObjectId = require("mongodb").ObjectID;
 const sendMail = require("./../helper/mail");
 const scheduleJob = require("./../helper/scheduler");
+const { createLogger, format, transports } = require("winston");
+const { combine, prettyPrint, timestamp } = format;
+const logger = createLogger({
+    format: combine(timestamp(), prettyPrint()),
+    transports: [new transports.Console()],
+});
 
 const getTableData = (req, res, db) => {
     db.collection("table")
         .find()
         .toArray()
         .then((data) => {
-            console.log(data);
             if (data.length > 0) {
                 res.status(200).json(data);
             } else {
@@ -17,7 +22,10 @@ const getTableData = (req, res, db) => {
             }
         })
         .catch((err) => {
-            console.error(err);
+            logger.log({
+                level: "error",
+                message: err,
+            });
             res.status(500).json({
                 dbError: "db error",
             });
@@ -30,11 +38,13 @@ const getData = (req, res, db) => {
     db.collection("table")
         .findOne({ _id: ObjectId(_id) })
         .then((data) => {
-            console.log(data);
             res.status(200).json(data);
         })
         .catch((err) => {
-            console.error(err);
+            logger.log({
+                level: "error",
+                message: err,
+            });
             res.status(500).json({
                 dataExists: "false",
             });
@@ -79,12 +89,18 @@ const postTableData = (req, res, db) => {
                     res.status(200).json(data.ops[0]);
                 })
                 .catch((err) => {
-                    console.error(err);
+                    logger.log({
+                        level: "error",
+                        message: err,
+                    });
                     res.status(400).json({ dbError: "db error" });
                 });
         })
         .catch((err) => {
-            console.error(err);
+            logger.log({
+                level: "error",
+                message: err,
+            });
             res.status(400).json({ dbError: "db error" });
         });
 };
@@ -108,7 +124,10 @@ const addComm = (req, res, db) => {
             res.status(200).json({ dbUpdate: "true" });
         })
         .catch((err) => {
-            console.error(err);
+            logger.log({
+                level: "error",
+                message: err,
+            });
             res.status(400).json({ dbError: "db error" });
         });
 };
@@ -149,14 +168,20 @@ const putTableData = (req, res, db) => {
                     res.status(200).json(data);
                 })
                 .catch((err) => {
-                    console.error(err);
+                    logger.log({
+                        level: "error",
+                        message: err,
+                    });
                     res.status(500).json({
                         dataExists: "false",
                     });
                 });
         })
         .catch((err) => {
-            console.error(err);
+            logger.log({
+                level: "error",
+                message: err,
+            });
             res.status(400).json({ dbError: "db error" });
         });
 };
@@ -170,7 +195,13 @@ const deleteTableData = (req, res, db) => {
             console.log(data);
             res.status(200).json({ delete: "true" });
         })
-        .catch((err) => res.status(400).json({ dbError: "db error" }));
+        .catch((err) => {
+            logger.log({
+                level: "error",
+                message: err,
+            });
+            res.status(400).json({ dbError: "db error" });
+        });
 };
 
 const mailer = (req, res, db) => {

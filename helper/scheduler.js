@@ -1,5 +1,11 @@
 const sendMail = require("./mail");
 const kue = require("kue-scheduler");
+const { createLogger, format, transports } = require("winston");
+const { combine, prettyPrint, timestamp } = format;
+const logger = createLogger({
+    format: combine(timestamp(), prettyPrint()),
+    transports: [new transports.Console()],
+});
 const Queue = kue.createQueue({
     skipConfig: false,
     redis: {
@@ -24,7 +30,7 @@ const scheduleJob = (mail_details, delay, res) => {
     //listen on scheduler errors
     Queue.on("schedule error", function (error) {
         //handle all scheduling errors here
-        console.log(error);
+        logger.error(err);
     });
 
     //listen on success scheduling
@@ -33,14 +39,17 @@ const scheduleJob = (mail_details, delay, res) => {
         //job instance level events listeners
 
         job.on("complete", function (result) {
-            console.log("Job completed with data ", result);
+            logger.info("Job completed with data " + JSON.stringify(result));
             Queue.removeAllListeners();
             sendMail(mail_details, res);
             Queue.clear();
             job.remove();
         })
             .on("failed attempt", function (errorMessage, doneAttempts) {
-                console.log("Job failed");
+                logger.log({
+                    level: "error",
+                    message: "Job failed",
+                });
             })
             .on("failed", function (errorMessage) {
                 console.log("Job failed");
