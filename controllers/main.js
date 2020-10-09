@@ -8,6 +8,7 @@ const logger = createLogger({
     transports: [new transports.Console()],
 });
 
+// Get All Customers Data
 const getTableData = (req, res, db) => {
     db.collection("table")
         .find()
@@ -32,6 +33,7 @@ const getTableData = (req, res, db) => {
         });
 };
 
+// Get Individual Customer Data
 const getData = (req, res, db) => {
     const { _id } = req.params;
 
@@ -51,8 +53,8 @@ const getData = (req, res, db) => {
         });
 };
 
+// Add a Customer
 const postTableData = (req, res, db) => {
-    console.log("log");
     const {
         cust_name,
         cust_email,
@@ -105,6 +107,7 @@ const postTableData = (req, res, db) => {
         });
 };
 
+// Add new Communication
 const addComm = (req, res, db) => {
     const { timestamp, details, cust_id } = req.body;
 
@@ -132,6 +135,7 @@ const addComm = (req, res, db) => {
         });
 };
 
+// Update Customer Data
 const putTableData = (req, res, db) => {
     const {
         cust_id,
@@ -186,6 +190,7 @@ const putTableData = (req, res, db) => {
         });
 };
 
+// Delete a customer
 const deleteTableData = (req, res, db) => {
     const { cust_id } = req.body;
 
@@ -204,6 +209,7 @@ const deleteTableData = (req, res, db) => {
         });
 };
 
+// Send mail
 const mailer = (req, res, db) => {
     const { cust_email, subject, body } = req.body;
     sendMail(
@@ -216,6 +222,7 @@ const mailer = (req, res, db) => {
     );
 };
 
+// Schedule Mail to be send at a delayed time
 const scheduleMail = (req, res, db) => {
     const { cust_email, subject, body, delay } = req.body;
     scheduleJob({ email: cust_email, subject, body }, delay, res);

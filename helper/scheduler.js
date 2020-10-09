@@ -6,7 +6,10 @@ const logger = createLogger({
     format: combine(timestamp(), prettyPrint()),
     transports: [new transports.Console()],
 });
+
+// creating a Queue for scheduling
 const Queue = kue.createQueue({
+    // connecting to redis database
     skipConfig: false,
     redis: {
         port: 6379,
@@ -15,8 +18,6 @@ const Queue = kue.createQueue({
     },
     restore: true,
 });
-
-Queue.removeAllListeners();
 
 const scheduleJob = (mail_details, delay, res) => {
     //processing jobs
@@ -27,21 +28,19 @@ const scheduleJob = (mail_details, delay, res) => {
         });
     });
 
-    //listen on scheduler errors
+    // adding error event listener
     Queue.on("schedule error", function (error) {
-        //handle all scheduling errors here
         logger.error(err);
     });
 
-    //listen on success scheduling
+    // handling listener
     Queue.on("schedule success", function (job) {
-        //a highly recommended place to attach
-        //job instance level events listeners
-
         job.on("complete", function (result) {
             logger.info("Job completed with data " + JSON.stringify(result));
             Queue.removeAllListeners();
             sendMail(mail_details, res);
+
+            // clearing the Queue
             Queue.clear();
             job.remove();
         })
@@ -67,8 +66,6 @@ const scheduleJob = (mail_details, delay, res) => {
             });
     });
 
-    //prepare a job to perform
-    //dont save it
     var job = Queue.createJob("schedule", {
         to: "any",
     })

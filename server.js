@@ -1,5 +1,4 @@
 const express = require("express");
-const MongoClient = require("mongodb").MongoClient;
 const routes = require("./routes");
 
 const { createLogger, format, transports } = require("winston");
@@ -13,8 +12,9 @@ require("dotenv").config();
 const helmet = require("helmet"); // creates headers that protect from attacks (security)
 const bodyParser = require("body-parser"); // turns response into usable format
 const cors = require("cors"); // allows/disallows cross-site communication
-const morgan = require("morgan"); // logs requests
+const morgan = require("morgan"); // logs requests for HTTP requests
 
+// connfiguring winston logger
 const logger = createLogger({
     format: combine(timestamp(), prettyPrint()),
     transports: [new transports.Console()],

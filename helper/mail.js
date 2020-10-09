@@ -8,8 +8,6 @@ const logger = createLogger({
 });
 
 const sendMail = async ({ email, subject, body }, res) => {
-    // let testAccount = await nodemailer.createTestAccount();
-
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
